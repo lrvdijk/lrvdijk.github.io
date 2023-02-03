@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tutorial on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</title>
+    <link>https://lucasvandijk.nl/categories/tutorial/</link>
+    <description>Recent content in Tutorial on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018 Lucas van Dijk</copyright>
+    <lastBuildDate>Mon, 26 Mar 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://lucasvandijk.nl/categories/tutorial/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Using locality sensitive hashing to compactly represent k-mers</title>
+      <link>https://lucasvandijk.nl/2018/03/using-locality-sensitive-hashing-to-compactly-represent-k-mers/</link>
+      <pubDate>Mon, 26 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/2018/03/using-locality-sensitive-hashing-to-compactly-represent-k-mers/</guid>
+      <description>&lt;p&gt;Comparing (DNA) sequences is one of the core tasks in bioinformatics and the
+classic approach is to &lt;em&gt;align&lt;/em&gt; these sequences. This is, however, a relative
+slow process and not always computationally feasible, especially if you want to
+compare more than two DNA sequences. An alternative approach is compare
+sequences based on their &lt;em&gt;k-mer profiles&lt;/em&gt;.&lt;/p&gt;
+
+&lt;p&gt;A &lt;em&gt;k-mer&lt;/em&gt; of a string $S$ is defined as any substring of $S$ of length $k$. For
+example, the DNA sequence &lt;code&gt;AGCGTATCGATTCA&lt;/code&gt; has the following k-mers if $k=6$:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;AGCGTATCGATTCA
+--------------
+AGCGTA
+ GCGTAT
+  CGTATC
+   ...
+        GATTCA
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;As you can see, obtaining all &lt;em&gt;k-mers&lt;/em&gt; is easy: slide a window of size $k$
+along your sequence, yielding a k-mer at each position. A sequence of length
+$L$ has $L - k + 1$ k-mers. A common task is to count how often each k-mer
+occurs and compare genomes based on these counts. The main idea is
+that similar genomes have similar &lt;em&gt;k-mer&lt;/em&gt; counts&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:1&#34;&gt;&lt;a href=&#34;#fn:1&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;.&lt;/p&gt;
+
+&lt;p&gt;When dealing with the scale of genomes, storing counts for all these different
+k-mers can take up quite a lot of memory. First, the number of distinct
+&lt;em&gt;k-mers&lt;/em&gt; grows exponentially with the length of $k$. In the case of DNA sequences,
+our alphabet size is 4: A, C, T, G. Then there are $4^k$
+possibilities of length $k$. The value of $k$
+depends on your application and organism, but values ranging from 5 to 32 are
+common.&lt;/p&gt;
+
+&lt;p&gt;Next, think how we would store the &lt;em&gt;k-mer&lt;/em&gt; itself.
+We could store each letter as ASCII character, requiring 8-bits per character.
+This is a bit wasteful, however, because in DNA we only have 4 different
+characters. An optimisation would be to use 2 bits per character: A=00, C=01,
+T=10, G=11. This would allow us to store a &lt;em&gt;k-mer&lt;/em&gt; of length 32 in a 64-bit
+integer. Still, this may not be good enough. I&amp;rsquo;ve seen cases for
+$k=23$ where it went up to more than 100 GB, and that&amp;rsquo;s quite a lot of memory
+even if you have access to a decent compute cluster.&lt;/p&gt;
+
+&lt;p&gt;This post will explain a technique described in the paper by Cleary &lt;em&gt;et al.&lt;/em&gt;&lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:2&#34;&gt;&lt;a href=&#34;#fn:2&#34;&gt;2&lt;/a&gt;&lt;/sup&gt;
+to reduce the memory consumption for storing &lt;em&gt;k-mers&lt;/em&gt;. The main insight is that
+we often don&amp;rsquo;t need the &lt;em&gt;exact&lt;/em&gt; count of each &lt;em&gt;k-mer&lt;/em&gt;, and can take some
+shortcuts by missing some &lt;em&gt;k-mers&lt;/em&gt;. Because of the exponential number of
+different &lt;em&gt;k-mers&lt;/em&gt; and because genomes are often large, missing a few &lt;em&gt;k-mers&lt;/em&gt;
+will not have a huge impact. Furthermore, when dealing with whole genome
+sequencing datasets, you also have to deal with sequencing error, and expect
+some &lt;em&gt;k-mers&lt;/em&gt; to be false. In a lot of cases using approximate &lt;em&gt;k-mer&lt;/em&gt; counts is
+appropriate.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Drawing arbitrary shapes with OpenGL points</title>
+      <link>https://lucasvandijk.nl/2015/06/drawing-arbitrary-shapes-with-opengl-points/</link>
+      <pubDate>Sat, 13 Jun 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/2015/06/drawing-arbitrary-shapes-with-opengl-points/</guid>
+      <description>&lt;p&gt;Part of my Google Summer of Code project involves porting several arrow
+heads from &lt;a href=&#34;https://github.com/glumpy/glumpy&#34; target=&#34;_blank&#34;&gt;Glumpy&lt;/a&gt; to
+&lt;a href=&#34;https://vispy.org&#34; target=&#34;_blank&#34;&gt;Vispy&lt;/a&gt;. I also want to make a slight change to them:
+the arrow heads in Glumpy include an arrow body, I want to remove that
+to make sure you can put an arrow head on every type of line you want.&lt;/p&gt;
+
+&lt;p&gt;Making a change like that requires that you understand how those shapes
+are drawn. And for someone without a background in computer graphics this took some thorough
+investigation of the code and the techniques used. This article is aimed
+at people like me: good enough programming skills and linear algebra
+knowledge, but almost no former experience with OpenGL or computer
+graphics in general.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Controlling a servo with an AVR microcontroller</title>
+      <link>https://lucasvandijk.nl/2012/10/controlling-a-servo-with-an-avr-microcontroller/</link>
+      <pubDate>Tue, 16 Oct 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/2012/10/controlling-a-servo-with-an-avr-microcontroller/</guid>
+      <description>&lt;p&gt;Welcome to my first AVR tutorial on this site! We&amp;rsquo;ll be doing something basic
+today, namely controlling a servo. There are a lot of tutorials on how to
+control it with an Arduino, but less tutorials using only a bare AVR chip. In
+this tutorial we&amp;rsquo;ll be using the ATTiny44, a small and cheap microprocessor,
+which also contains a &lt;strong&gt;16 bit timer&lt;/strong&gt;, which will make our life a bit easier.&lt;/p&gt;
+
+&lt;p&gt;Servos are often used to move robot arms and things alike, because they can rotate a specific amount of degrees very precisely, depending on the pulsewidth you feed it with the microcontroller. They can also be used as a motor (you&amp;rsquo;ll need special &amp;lsquo;continuous rotation&amp;rsquo; servos for that), you&amp;rsquo;ll often find them in RC cars.&lt;/p&gt;
+
+&lt;p&gt;So lets get started, and see how you actually control a servo!&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Multithreading with C&#43;&#43;11: protecting data</title>
+      <link>https://lucasvandijk.nl/2012/06/multithreading-with-c-11-protecting-data/</link>
+      <pubDate>Thu, 14 Jun 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/2012/06/multithreading-with-c-11-protecting-data/</guid>
+      <description>&lt;p&gt;Welcome to this second part in a series of articles about multithreading with C++11.
+In the previous part, I briefly explained what a thread is, and how to create one with the new C++ thread library.
+This time, we will be writing a lot more code, so open up your favourite IDE if you want to try the examples while you&amp;rsquo;re reading.&lt;/p&gt;
+
+&lt;p&gt;In the previous article we also saw that sometimes, the output wasn&amp;rsquo;t completely right when running multiple threads simultaneously. Today,
+we&amp;rsquo;ll see that there are some other problems with sharing a resource between threads, and of course, provide some solutions to these
+problems.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Introduction to threads with C&#43;&#43;11</title>
+      <link>https://lucasvandijk.nl/2012/05/introduction-to-threads-with-c-11/</link>
+      <pubDate>Thu, 03 May 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/2012/05/introduction-to-threads-with-c-11/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;http://www.gotw.ca/publications/concurrency-ddj.htm&#34; target=&#34;_blank&#34;&gt;The free lunch is over&lt;/a&gt;. The time that our complex algorithm was
+running extremely slow on a computer, but ran extremely fast a few years later,
+because the processor speeds exploded, is gone. The trend with current processors
+is to add more cores, rather than increasing the clock frequency.&lt;/p&gt;
+
+&lt;p&gt;As programmer, you should be aware of this. Of course, processors will always
+perform a bit better each year, but the growth in performance is slowing down.
+Currently, a lot of programs can benefit the most by using multiple threads,
+because of today&amp;rsquo;s multicore processors.&lt;/p&gt;
+
+&lt;p&gt;In this article I&amp;rsquo;ll briefly explain what a thread is, and how you can create
+them with the new threading library in C++11. I&amp;rsquo;m planning to write multiple
+articles about this topic, each going a little bit more in depth.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

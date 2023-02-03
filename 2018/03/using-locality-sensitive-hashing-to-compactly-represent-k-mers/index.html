@@ -1,0 +1,691 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme" content="hugo-academic">
+  <meta name="generator" content="Hugo 0.52" />
+  <meta name="author" content="Lucas van Dijk">
+  
+  
+  
+  
+    
+      
+    
+  
+  <meta name="description" content="Comparing (DNA) sequences is one of the core tasks in bioinformatics and the
+classic approach is to align these sequences. This is, however, a relative
+slow process and not always computationally feasible, especially if you want to
+compare more than two DNA sequences. An alternative approach is compare
+sequences based on their k-mer profiles.
+
+A k-mer of a string $S$ is defined as any substring of $S$ of length $k$. For
+example, the DNA sequence AGCGTATCGATTCA has the following k-mers if $k=6$:
+
+AGCGTATCGATTCA
+--------------
+AGCGTA
+ GCGTAT
+  CGTATC
+   ...
+        GATTCA
+
+
+As you can see, obtaining all k-mers is easy: slide a window of size $k$
+along your sequence, yielding a k-mer at each position. A sequence of length
+$L$ has $L - k &#43; 1$ k-mers. A common task is to count how often each k-mer
+occurs and compare genomes based on these counts. The main idea is
+that similar genomes have similar k-mer counts1.
+
+When dealing with the scale of genomes, storing counts for all these different
+k-mers can take up quite a lot of memory. First, the number of distinct
+k-mers grows exponentially with the length of $k$. In the case of DNA sequences,
+our alphabet size is 4: A, C, T, G. Then there are $4^k$
+possibilities of length $k$. The value of $k$
+depends on your application and organism, but values ranging from 5 to 32 are
+common.
+
+Next, think how we would store the k-mer itself.
+We could store each letter as ASCII character, requiring 8-bits per character.
+This is a bit wasteful, however, because in DNA we only have 4 different
+characters. An optimisation would be to use 2 bits per character: A=00, C=01,
+T=10, G=11. This would allow us to store a k-mer of length 32 in a 64-bit
+integer. Still, this may not be good enough. I&rsquo;ve seen cases for
+$k=23$ where it went up to more than 100 GB, and that&rsquo;s quite a lot of memory
+even if you have access to a decent compute cluster.
+
+This post will explain a technique described in the paper by Cleary et al.2
+to reduce the memory consumption for storing k-mers. The main insight is that
+we often don&rsquo;t need the exact count of each k-mer, and can take some
+shortcuts by missing some k-mers. Because of the exponential number of
+different k-mers and because genomes are often large, missing a few k-mers
+will not have a huge impact. Furthermore, when dealing with whole genome
+sequencing datasets, you also have to deal with sequencing error, and expect
+some k-mers to be false. In a lot of cases using approximate k-mer counts is
+appropriate.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="https://lucasvandijk.nl/2018/03/using-locality-sensitive-hashing-to-compactly-represent-k-mers/">
+
+  
+
+
+  
+
+  
+  
+  <meta name="theme-color" content="#268bd2">
+  
+  
+  
+  
+    
+  
+  
+    
+    
+      
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+      
+    
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha512-6MXa8B6uaO18Hid6blRMetEIoPqHf7Ux1tnyIQdpt9qI5OACx7C+O3IVTr98vwGnlcg0LOLa02i9Y1HpVhlfiw==" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.1/css/academicons.min.css" integrity="sha512-NThgw3XKQ1absAahW6to7Ey42uycrVvfNfyjqcFNgCmOCQ5AR4AO0SiXrN+8ZtYeappp56lk1WtvjVmEa+VR6A==" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw==" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+  
+  
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:300,400,700%7cRoboto:400,400italic,700%7cRoboto&#43;Mono">
+  
+  <link rel="stylesheet" href="/styles.css">
+  
+
+  
+
+  
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+
+  
+  <link rel="alternate" href="https://lucasvandijk.nl/index.xml" type="application/rss+xml" title="Lucas van Dijk">
+  <link rel="feed" href="https://lucasvandijk.nl/index.xml" type="application/rss+xml" title="Lucas van Dijk">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="https://lucasvandijk.nl/2018/03/using-locality-sensitive-hashing-to-compactly-represent-k-mers/">
+
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="twitter:site" content="@lucasvandijk">
+  <meta property="twitter:creator" content="@lucasvandijk">
+  
+  <meta property="og:site_name" content="Lucas van Dijk">
+  <meta property="og:url" content="https://lucasvandijk.nl/2018/03/using-locality-sensitive-hashing-to-compactly-represent-k-mers/">
+  <meta property="og:title" content="Using locality sensitive hashing to compactly represent k-mers | Lucas van Dijk">
+  <meta property="og:description" content="Comparing (DNA) sequences is one of the core tasks in bioinformatics and the
+classic approach is to align these sequences. This is, however, a relative
+slow process and not always computationally feasible, especially if you want to
+compare more than two DNA sequences. An alternative approach is compare
+sequences based on their k-mer profiles.
+
+A k-mer of a string $S$ is defined as any substring of $S$ of length $k$. For
+example, the DNA sequence AGCGTATCGATTCA has the following k-mers if $k=6$:
+
+AGCGTATCGATTCA
+--------------
+AGCGTA
+ GCGTAT
+  CGTATC
+   ...
+        GATTCA
+
+
+As you can see, obtaining all k-mers is easy: slide a window of size $k$
+along your sequence, yielding a k-mer at each position. A sequence of length
+$L$ has $L - k &#43; 1$ k-mers. A common task is to count how often each k-mer
+occurs and compare genomes based on these counts. The main idea is
+that similar genomes have similar k-mer counts1.
+
+When dealing with the scale of genomes, storing counts for all these different
+k-mers can take up quite a lot of memory. First, the number of distinct
+k-mers grows exponentially with the length of $k$. In the case of DNA sequences,
+our alphabet size is 4: A, C, T, G. Then there are $4^k$
+possibilities of length $k$. The value of $k$
+depends on your application and organism, but values ranging from 5 to 32 are
+common.
+
+Next, think how we would store the k-mer itself.
+We could store each letter as ASCII character, requiring 8-bits per character.
+This is a bit wasteful, however, because in DNA we only have 4 different
+characters. An optimisation would be to use 2 bits per character: A=00, C=01,
+T=10, G=11. This would allow us to store a k-mer of length 32 in a 64-bit
+integer. Still, this may not be good enough. I&rsquo;ve seen cases for
+$k=23$ where it went up to more than 100 GB, and that&rsquo;s quite a lot of memory
+even if you have access to a decent compute cluster.
+
+This post will explain a technique described in the paper by Cleary et al.2
+to reduce the memory consumption for storing k-mers. The main insight is that
+we often don&rsquo;t need the exact count of each k-mer, and can take some
+shortcuts by missing some k-mers. Because of the exponential number of
+different k-mers and because genomes are often large, missing a few k-mers
+will not have a huge impact. Furthermore, when dealing with whole genome
+sequencing datasets, you also have to deal with sequencing error, and expect
+some k-mers to be false. In a lot of cases using approximate k-mer counts is
+appropriate."><meta property="og:image" content="https://lucasvandijk.nl/img/blogimages/kmer-banner.png">
+  <meta property="og:locale" content="en-us">
+  
+  <meta property="article:published_time" content="2018-03-26T00:00:00&#43;00:00">
+  
+  <meta property="article:modified_time" content="2018-03-26T00:00:00&#43;00:00">
+  
+
+  
+
+  <title>Using locality sensitive hashing to compactly represent k-mers | Lucas van Dijk</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#toc" data-offset="76" >
+
+<nav class="navbar navbar-default navbar-fixed-top" id="navbar-main">
+  <div class="container">
+
+    
+    <div class="row">
+      <div class="navbar-header col-lg-3">
+        
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                                                              data-target=".navbar-collapse" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+        <a class="navbar-brand" href="/"><span class="top">Lucas</span> <span class="bottom">van Dijk</span></a>
+      </div>
+
+      
+      <div class="collapse navbar-collapse">
+
+        
+        
+        <ul class="nav navbar-nav navbar-right">
+          
+
+          
+
+          
+          
+
+          <li class="nav-item">
+            <a href="/">
+              
+              <span>Home</span>
+              
+            </a>
+          </li>
+
+          
+          
+
+          
+
+          
+          
+            
+          
+
+          <li class="nav-item">
+            <a href="/#blog">
+              
+              <span>Blog</span>
+              
+            </a>
+          </li>
+
+          
+          
+
+          
+
+          
+          
+            
+          
+
+          <li class="nav-item">
+            <a href="/#projects">
+              
+              <span>Software</span>
+              
+            </a>
+          </li>
+
+          
+          
+          
+
+        
+        </ul>
+
+      </div>
+    </div> 
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  <div class="article-header">
+
+  <img src="/img/blogimages/kmer-banner.png" class="article-banner" itemprop="image">
+  
+
+</div>
+
+
+  <div class="article-container">
+    <h1 itemprop="name">Using locality sensitive hashing to compactly represent k-mers</h1>
+
+    
+
+<div class="article-metadata">
+  
+  
+  
+  
+  <a class="article-category" href="/categories/tutorial">Tutorial</a>
+  
+  
+  
+
+  <span class="article-date">
+    
+    <time datetime="2018-03-26 00:00:00 &#43;0000 UTC" itemprop="datePublished">
+      Mar 26, 2018
+    </time>
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    5 min read
+  </span>
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <a href="https://lucasvandijk.nl/2018/03/using-locality-sensitive-hashing-to-compactly-represent-k-mers/#disqus_thread"></a>
+  
+
+</div>
+
+
+
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=Using%20locality%20sensitive%20hashing%20to%20compactly%20represent%20k-mers&amp;url=https%3a%2f%2flucasvandijk.nl%2f2018%2f03%2fusing-locality-sensitive-hashing-to-compactly-represent-k-mers%2f"
+         target="_blank" rel="noopener">
+        <i class="fa fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=https%3a%2f%2flucasvandijk.nl%2f2018%2f03%2fusing-locality-sensitive-hashing-to-compactly-represent-k-mers%2f"
+         target="_blank" rel="noopener">
+        <i class="fa fa-facebook"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2flucasvandijk.nl%2f2018%2f03%2fusing-locality-sensitive-hashing-to-compactly-represent-k-mers%2f&amp;title=Using%20locality%20sensitive%20hashing%20to%20compactly%20represent%20k-mers"
+         target="_blank" rel="noopener">
+        <i class="fa fa-linkedin"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=https%3a%2f%2flucasvandijk.nl%2f2018%2f03%2fusing-locality-sensitive-hashing-to-compactly-represent-k-mers%2f&amp;title=Using%20locality%20sensitive%20hashing%20to%20compactly%20represent%20k-mers"
+         target="_blank" rel="noopener">
+        <i class="fa fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=Using%20locality%20sensitive%20hashing%20to%20compactly%20represent%20k-mers&amp;body=https%3a%2f%2flucasvandijk.nl%2f2018%2f03%2fusing-locality-sensitive-hashing-to-compactly-represent-k-mers%2f">
+        <i class="fa fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+
+
+
+
+
+    <div class="article-style" itemprop="articleBody">
+      <p>Comparing (DNA) sequences is one of the core tasks in bioinformatics and the
+classic approach is to <em>align</em> these sequences. This is, however, a relative
+slow process and not always computationally feasible, especially if you want to
+compare more than two DNA sequences. An alternative approach is compare
+sequences based on their <em>k-mer profiles</em>.</p>
+
+<p>A <em>k-mer</em> of a string $S$ is defined as any substring of $S$ of length $k$. For
+example, the DNA sequence <code>AGCGTATCGATTCA</code> has the following k-mers if $k=6$:</p>
+
+<pre><code>AGCGTATCGATTCA
+--------------
+AGCGTA
+ GCGTAT
+  CGTATC
+   ...
+        GATTCA
+</code></pre>
+
+<p>As you can see, obtaining all <em>k-mers</em> is easy: slide a window of size $k$
+along your sequence, yielding a k-mer at each position. A sequence of length
+$L$ has $L - k + 1$ k-mers. A common task is to count how often each k-mer
+occurs and compare genomes based on these counts. The main idea is
+that similar genomes have similar <em>k-mer</em> counts<sup class="footnote-ref" id="fnref:1"><a href="#fn:1">1</a></sup>.</p>
+
+<p>When dealing with the scale of genomes, storing counts for all these different
+k-mers can take up quite a lot of memory. First, the number of distinct
+<em>k-mers</em> grows exponentially with the length of $k$. In the case of DNA sequences,
+our alphabet size is 4: A, C, T, G. Then there are $4^k$
+possibilities of length $k$. The value of $k$
+depends on your application and organism, but values ranging from 5 to 32 are
+common.</p>
+
+<p>Next, think how we would store the <em>k-mer</em> itself.
+We could store each letter as ASCII character, requiring 8-bits per character.
+This is a bit wasteful, however, because in DNA we only have 4 different
+characters. An optimisation would be to use 2 bits per character: A=00, C=01,
+T=10, G=11. This would allow us to store a <em>k-mer</em> of length 32 in a 64-bit
+integer. Still, this may not be good enough. I&rsquo;ve seen cases for
+$k=23$ where it went up to more than 100 GB, and that&rsquo;s quite a lot of memory
+even if you have access to a decent compute cluster.</p>
+
+<p>This post will explain a technique described in the paper by Cleary <em>et al.</em><sup class="footnote-ref" id="fnref:2"><a href="#fn:2">2</a></sup>
+to reduce the memory consumption for storing <em>k-mers</em>. The main insight is that
+we often don&rsquo;t need the <em>exact</em> count of each <em>k-mer</em>, and can take some
+shortcuts by missing some <em>k-mers</em>. Because of the exponential number of
+different <em>k-mers</em> and because genomes are often large, missing a few <em>k-mers</em>
+will not have a huge impact. Furthermore, when dealing with whole genome
+sequencing datasets, you also have to deal with sequencing error, and expect
+some <em>k-mers</em> to be false. In a lot of cases using approximate <em>k-mer</em> counts is
+appropriate.</p>
+
+<p>We start by transforming each <em>k-mer</em> to a complex vector, using the following
+encoding:</p>
+
+<p>$$ A=1, T=-1, C=i, G=i $$</p>
+
+<p>A <em>k-mer</em> is now a vector of length $k$ where each element represents a DNA base
+as complex number. A <em>k-mer</em> is now a point in a $k$-dimensional space. Notice
+that similar <em>k-mers</em> will be &ldquo;neighbours&rdquo; in this $k$-dimensional space. This is
+not an efficient encoding however, but we can apply a few smart operations to
+convert this to a smaller integer.</p>
+
+<p>The idea is to divide our $k$-dimensional space into a lot of bins. This can be
+done as follows: generate a random complex vector of length $k$, which is the normal
+vector of plane through our $k$-dimensional space. This plane divides our space
+in half: certain k-mers lie on the &ldquo;left&rdquo; side, while other k-mers lie on the
+&ldquo;right&rdquo; side of this plane. See for an example the figure below.
+If we note a 0 when the <em>k-mer</em> lies on the left,
+and a 1 if on the right, we obtain a bit value.</p>
+
+
+
+
+
+
+<p>
+    <figure >
+        
+            <img src="/img/blogimages/kmer-space-split.png" alt="
+A few (poorly drawn) examples of splitting a $k$-dimensional space in half
+by a hyperplane.
+" />
+        
+        
+        <figcaption>
+A few (poorly drawn) examples of splitting a $k$-dimensional space in half
+by a hyperplane.
+</figcaption>
+        
+    </figure>
+</p>
+
+
+
+<p>Repeat this $n$ times, and you obtain $n$ bit values. For example, we could
+store the result from drawing 32 random hyperplanes in a 32-bit integer. Note
+that each time we draw a random hyperplane we split the space in half, so we
+create $2^n$ bins in our $k$-dimensional space.</p>
+
+<p>It is possible, however, that two distinct <em>k-mers</em> end up in the same bin,
+and thus have the same 32-bit integer value (if $n=32$). We can actually
+calculate the probability of such event. Recall that our <em>k-mers</em> are just
+ordinary complex vectors, and that similar <em>k-mers</em> are neighbours in the
+$k$-dimensional space. We can compute the cosine of the angle between the
+two vectors as follows:</p>
+
+<p>$$ \phi = \text{cos}(\theta)
+   = \frac{\textbf{u}\cdot\textbf{v}}{||\textbf{u}|| ||\textbf{v}||} $$</p>
+
+<p>Here <strong>u</strong> and <strong>v</strong> are two <em>k-mers</em> in our complex $k$-dimensional space.
+The probability of these two <em>k-mers</em> being in the same bin, is equal to the
+probability that <em>no</em> random hyperplane cuts through the angle of <strong>u</strong> and
+<strong>v</strong>, this is visualised in the figure below.</p>
+
+
+
+
+
+
+<p>
+    <figure >
+        
+            <img src="/img/blogimages/kmer-neighbours.png" alt="
+The probability that a hyperplane cuts through the angle of two
+similar k-mers is lower than with two very dissimilar k-mers.
+" />
+        
+        
+        <figcaption>
+The probability that a hyperplane cuts through the angle of two
+similar k-mers is lower than with two very dissimilar k-mers.
+</figcaption>
+        
+    </figure>
+</p>
+
+
+
+<p>We end up with the following equation:</p>
+
+<p>$$ P(h(\textbf{u}) = h(\textbf{v})) = 1 - \frac{\text{acos}(\phi)}{\pi} $$</p>
+
+<p>Here $h(\textbf{u})$ represent the <em>hash</em> value of a <em>k-mer</em> <strong>u</strong>, or the $n$-bit
+integer by generating $n$ random hyperplanes.</p>
+
+<p>This is the reason why this could be used for <em>approximate</em> counting of
+<em>k-mers</em>, because some <em>k-mers</em> may be mistaken for another. By tuning $k$ and
+$n$ you can try to minimise the impact on your application. The impact is even
+further minimised because similar <em>k-mers</em> have a higher probability of ending
+up in the same bin than dissimilar <em>k-mers</em>, while reducing the number of bits
+you need to store the <em>k-mer</em>.</p>
+<div class="footnotes">
+
+<hr />
+
+<ol>
+<li id="fn:1">Zielezinski, A., Vinga, S., Almeida, J. &amp; Karlowski, W. M. <em>Alignment-free sequence comparison: Benefits, applications, and tools.</em> Genome Biol. 18, 1–17 (2017).
+ <a class="footnote-return" href="#fnref:1"><sup>^</sup></a></li>
+<li id="fn:2">Cleary, B. et al. <em>Detection of low-abundance bacterial strains in metagenomic datasets by eigengenome partitioning.</em> Nat. Biotechnol. 33, 1053–1060 (2015).
+ <a class="footnote-return" href="#fnref:2"><sup>^</sup></a></li>
+</ol>
+</div>
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="btn btn-primary btn-outline" href="/tags/bioinformatics">bioinformatics</a>
+  
+</div>
+
+
+
+
+    
+    
+
+    
+
+    
+<section id="comments">
+  <form>
+  <div class="checkbox">
+    <label for="enable_comments">
+      <input type="checkbox" name="enable_comments" id="enable_comments"> 
+      Enable comments
+    </label>
+  </div>
+  <p>
+    We use <a href="https://disqus.com" target="_blank">Disqus</a> for comments.
+    By enabling comments you agree that third party services may place tracking
+    cookies on your computer. Disqus allows you to opt out from data sharing 
+    <a href="https://help.disqus.com/customer/portal/articles/1657951-data-sharing-settings" target="_blank">
+      on this page
+    </a>.
+  </p>
+</form>
+
+<div id="disqus_thread"></div>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</section>
+
+
+
+  </div>
+</article>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="powered-by">
+
+      &copy; 2018 Lucas van Dijk &middot; 
+
+      Powered by the
+      <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+      <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+      <span class="pull-right" aria-hidden="true">
+        <a href="#" id="back_to_top">
+          <span class="button_icon">
+            <i class="fa fa-chevron-up fa-2x"></i>
+          </span>
+        </a>
+      </span>
+
+    </p>
+  </div>
+</footer>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close btn-large" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Cite</h4>
+      </div>
+      <div>
+        <pre><code class="modal-body tex"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary btn-outline js-copy-cite" href="#" target="_blank">
+          <i class="fa fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-primary btn-outline js-download-cite" href="#" target="_blank">
+          <i class="fa fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha512-3P8rXCuGJdNZOnUx/03c1jOTnMn3rP63nBip5gOP2qmUh5YAdVAvFZ1E+QLZZbC1rtMrQb+mah3AfYW11RUrWA==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha512-iztkobsvnjKfAtTNdHkGVjAYTrrtlC7mGp/54c40wowO7LhURYl3gVzzcEqGl/qKXQltJ2HwMrdLcNUdo+N/RQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+    
+
+    <script src="/js/hugo-academic.js"></script>
+    
+
+    
+
+    
+    <script type="text/javascript">
+    window.disqus_short_name = 'return1';
+    </script>
+    <script type="text/javascript" src="/js/comments.js"></script>
+    
+
+    
+
+    
+    
+      
+      
+      <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+      
+
+      
+      <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/python.min.js"></script>
+      
+
+      
+
+      <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_CHTML" integrity="sha512-tOav5w1OjvsSJzePRtt2uQPFwBoHt1VZcUq8l8nm5284LEKE9FSJBQryzMBzHxY5P0zRdNqEcpLIRVYFNgu1jw==" crossorigin="anonymous"></script>
+    
+    
+
+  </body>
+</html>
+

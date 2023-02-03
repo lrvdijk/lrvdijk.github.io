@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>C&#43;&#43; on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</title>
+    <link>https://lucasvandijk.nl/tags/c&#43;&#43;/</link>
+    <description>Recent content in C&#43;&#43; on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018 Lucas van Dijk</copyright>
+    <lastBuildDate>Tue, 29 Aug 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://lucasvandijk.nl/tags/c++/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>PHASM: Haplotype-aware de novo genome assembly</title>
+      <link>https://lucasvandijk.nl/project/phasm/</link>
+      <pubDate>Tue, 29 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/project/phasm/</guid>
+      <description>PHASM is a long read de novo genome assembler that phases variants among chromosome homologues during the assembly process, and aims to output separate contigs for each haplotype. The main idea in PHASM is to build bubble chains: consecutive &amp;ldquo;superbubbles&amp;rdquo; chained together. While most traditional genome assemblers pop these superbubbles by only keeping the best supported path, PHASM finds k paths through this chain of superbubbles that best represent each haplotype.</description>
+    </item>
+    
+    <item>
+      <title>Raspberry Pi TLC5940 library</title>
+      <link>https://lucasvandijk.nl/project/raspberry-pi-tlc5940/</link>
+      <pubDate>Mon, 01 Apr 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/project/raspberry-pi-tlc5940/</guid>
+      <description>This is a library which allows programs running in the userspace to control the TLC5940 LED driver with a Raspberry Pi. The user can specify the PWM value for each output channel of the TLC5940, and it also supports multiple cascaded TLC5940&amp;rsquo;s.
+The TLC5940 The TLC5940 is a versatile LED driver from Texas Instruments. It has 16 output channels, and they can be cascaded to easily support more output channels.</description>
+    </item>
+    
+    <item>
+      <title>Multithreading with C&#43;&#43;11: protecting data</title>
+      <link>https://lucasvandijk.nl/2012/06/multithreading-with-c-11-protecting-data/</link>
+      <pubDate>Thu, 14 Jun 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/2012/06/multithreading-with-c-11-protecting-data/</guid>
+      <description>&lt;p&gt;Welcome to this second part in a series of articles about multithreading with C++11.
+In the previous part, I briefly explained what a thread is, and how to create one with the new C++ thread library.
+This time, we will be writing a lot more code, so open up your favourite IDE if you want to try the examples while you&amp;rsquo;re reading.&lt;/p&gt;
+
+&lt;p&gt;In the previous article we also saw that sometimes, the output wasn&amp;rsquo;t completely right when running multiple threads simultaneously. Today,
+we&amp;rsquo;ll see that there are some other problems with sharing a resource between threads, and of course, provide some solutions to these
+problems.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Introduction to threads with C&#43;&#43;11</title>
+      <link>https://lucasvandijk.nl/2012/05/introduction-to-threads-with-c-11/</link>
+      <pubDate>Thu, 03 May 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/2012/05/introduction-to-threads-with-c-11/</guid>
+      <description>&lt;p&gt;&lt;a href=&#34;http://www.gotw.ca/publications/concurrency-ddj.htm&#34; target=&#34;_blank&#34;&gt;The free lunch is over&lt;/a&gt;. The time that our complex algorithm was
+running extremely slow on a computer, but ran extremely fast a few years later,
+because the processor speeds exploded, is gone. The trend with current processors
+is to add more cores, rather than increasing the clock frequency.&lt;/p&gt;
+
+&lt;p&gt;As programmer, you should be aware of this. Of course, processors will always
+perform a bit better each year, but the growth in performance is slowing down.
+Currently, a lot of programs can benefit the most by using multiple threads,
+because of today&amp;rsquo;s multicore processors.&lt;/p&gt;
+
+&lt;p&gt;In this article I&amp;rsquo;ll briefly explain what a thread is, and how you can create
+them with the new threading library in C++11. I&amp;rsquo;m planning to write multiple
+articles about this topic, each going a little bit more in depth.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

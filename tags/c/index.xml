@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>c on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</title>
+    <link>https://lucasvandijk.nl/tags/c/</link>
+    <description>Recent content in c on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018 Lucas van Dijk</copyright>
+    <lastBuildDate>Tue, 16 Oct 2012 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://lucasvandijk.nl/tags/c/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Controlling a servo with an AVR microcontroller</title>
+      <link>https://lucasvandijk.nl/2012/10/controlling-a-servo-with-an-avr-microcontroller/</link>
+      <pubDate>Tue, 16 Oct 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/2012/10/controlling-a-servo-with-an-avr-microcontroller/</guid>
+      <description>&lt;p&gt;Welcome to my first AVR tutorial on this site! We&amp;rsquo;ll be doing something basic
+today, namely controlling a servo. There are a lot of tutorials on how to
+control it with an Arduino, but less tutorials using only a bare AVR chip. In
+this tutorial we&amp;rsquo;ll be using the ATTiny44, a small and cheap microprocessor,
+which also contains a &lt;strong&gt;16 bit timer&lt;/strong&gt;, which will make our life a bit easier.&lt;/p&gt;
+
+&lt;p&gt;Servos are often used to move robot arms and things alike, because they can rotate a specific amount of degrees very precisely, depending on the pulsewidth you feed it with the microcontroller. They can also be used as a motor (you&amp;rsquo;ll need special &amp;lsquo;continuous rotation&amp;rsquo; servos for that), you&amp;rsquo;ll often find them in RC cars.&lt;/p&gt;
+
+&lt;p&gt;So lets get started, and see how you actually control a servo!&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

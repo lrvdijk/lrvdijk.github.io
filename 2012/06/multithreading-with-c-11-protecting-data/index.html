@@ -1,0 +1,802 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="theme" content="hugo-academic">
+  <meta name="generator" content="Hugo 0.52" />
+  <meta name="author" content="Lucas van Dijk">
+  
+  
+  
+  
+    
+      
+    
+  
+  <meta name="description" content="Welcome to this second part in a series of articles about multithreading with C&#43;&#43;11.
+In the previous part, I briefly explained what a thread is, and how to create one with the new C&#43;&#43; thread library.
+This time, we will be writing a lot more code, so open up your favourite IDE if you want to try the examples while you&rsquo;re reading.
+
+In the previous article we also saw that sometimes, the output wasn&rsquo;t completely right when running multiple threads simultaneously. Today,
+we&rsquo;ll see that there are some other problems with sharing a resource between threads, and of course, provide some solutions to these
+problems.">
+
+  
+  <link rel="alternate" hreflang="en-us" href="https://lucasvandijk.nl/2012/06/multithreading-with-c-11-protecting-data/">
+
+  
+
+
+  
+
+  
+  
+  <meta name="theme-color" content="#268bd2">
+  
+  
+  
+  
+    
+  
+  
+    
+    
+      
+        <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+      
+    
+  
+  
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha512-6MXa8B6uaO18Hid6blRMetEIoPqHf7Ux1tnyIQdpt9qI5OACx7C+O3IVTr98vwGnlcg0LOLa02i9Y1HpVhlfiw==" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.8.1/css/academicons.min.css" integrity="sha512-NThgw3XKQ1absAahW6to7Ey42uycrVvfNfyjqcFNgCmOCQ5AR4AO0SiXrN+8ZtYeappp56lk1WtvjVmEa+VR6A==" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css" integrity="sha512-SfTiTlX6kk+qitfevl/7LibUOeJWlt9rbyDn92a1DqWOw9vWG2MFoays0sgObmWazO5BQPiFucnnEAjpAB+/Sw==" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.css" integrity="sha256-ygkqlh3CYSUri3LhQxzdcm0n1EQvH2Y+U5S2idbLtxs=" crossorigin="anonymous">
+  
+  
+  
+  
+  <link rel="stylesheet" href="//fonts.googleapis.com/css?family=Montserrat:300,400,700%7cRoboto:400,400italic,700%7cRoboto&#43;Mono">
+  
+  <link rel="stylesheet" href="/styles.css">
+  
+
+  
+
+  
+
+  <script async defer src="https://buttons.github.io/buttons.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/js-cookie@2/src/js.cookie.min.js"></script>
+
+
+  
+  <link rel="alternate" href="https://lucasvandijk.nl/index.xml" type="application/rss+xml" title="Lucas van Dijk">
+  <link rel="feed" href="https://lucasvandijk.nl/index.xml" type="application/rss+xml" title="Lucas van Dijk">
+  
+
+  <link rel="manifest" href="/site.webmanifest">
+  <link rel="icon" type="image/png" href="/img/icon.png">
+  <link rel="apple-touch-icon" type="image/png" href="/img/icon-192.png">
+
+  <link rel="canonical" href="https://lucasvandijk.nl/2012/06/multithreading-with-c-11-protecting-data/">
+
+  <meta property="twitter:card" content="summary_large_image">
+  
+  <meta property="twitter:site" content="@lucasvandijk">
+  <meta property="twitter:creator" content="@lucasvandijk">
+  
+  <meta property="og:site_name" content="Lucas van Dijk">
+  <meta property="og:url" content="https://lucasvandijk.nl/2012/06/multithreading-with-c-11-protecting-data/">
+  <meta property="og:title" content="Multithreading with C&#43;&#43;11: protecting data | Lucas van Dijk">
+  <meta property="og:description" content="Welcome to this second part in a series of articles about multithreading with C&#43;&#43;11.
+In the previous part, I briefly explained what a thread is, and how to create one with the new C&#43;&#43; thread library.
+This time, we will be writing a lot more code, so open up your favourite IDE if you want to try the examples while you&rsquo;re reading.
+
+In the previous article we also saw that sometimes, the output wasn&rsquo;t completely right when running multiple threads simultaneously. Today,
+we&rsquo;ll see that there are some other problems with sharing a resource between threads, and of course, provide some solutions to these
+problems.">
+  <meta property="og:locale" content="en-us">
+  
+  <meta property="article:published_time" content="2012-06-14T00:00:00&#43;00:00">
+  
+  <meta property="article:modified_time" content="2012-06-14T00:00:00&#43;00:00">
+  
+
+  
+
+  <title>Multithreading with C&#43;&#43;11: protecting data | Lucas van Dijk</title>
+
+</head>
+<body id="top" data-spy="scroll" data-target="#toc" data-offset="76" >
+
+<nav class="navbar navbar-default navbar-fixed-top" id="navbar-main">
+  <div class="container">
+
+    
+    <div class="row">
+      <div class="navbar-header col-lg-3">
+        
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse"
+                                                              data-target=".navbar-collapse" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        
+        <a class="navbar-brand" href="/"><span class="top">Lucas</span> <span class="bottom">van Dijk</span></a>
+      </div>
+
+      
+      <div class="collapse navbar-collapse">
+
+        
+        
+        <ul class="nav navbar-nav navbar-right">
+          
+
+          
+
+          
+          
+
+          <li class="nav-item">
+            <a href="/">
+              
+              <span>Home</span>
+              
+            </a>
+          </li>
+
+          
+          
+
+          
+
+          
+          
+            
+          
+
+          <li class="nav-item">
+            <a href="/#blog">
+              
+              <span>Blog</span>
+              
+            </a>
+          </li>
+
+          
+          
+
+          
+
+          
+          
+            
+          
+
+          <li class="nav-item">
+            <a href="/#projects">
+              
+              <span>Software</span>
+              
+            </a>
+          </li>
+
+          
+          
+          
+
+        
+        </ul>
+
+      </div>
+    </div> 
+  </div>
+</nav>
+
+
+<article class="article" itemscope itemtype="http://schema.org/Article">
+
+  <div class="article-header">
+
+</div>
+
+
+  <div class="article-container">
+    <h1 itemprop="name">Multithreading with C&#43;&#43;11: protecting data</h1>
+
+    
+
+<div class="article-metadata">
+  
+  
+  
+  
+  <a class="article-category" href="/categories/tutorial">Tutorial</a>
+  
+  
+  
+
+  <span class="article-date">
+    
+    <time datetime="2012-06-14 00:00:00 &#43;0000 UTC" itemprop="datePublished">
+      Jun 14, 2012
+    </time>
+  </span>
+
+  
+  <span class="middot-divider"></span>
+  <span class="article-reading-time">
+    9 min read
+  </span>
+  
+
+  
+  
+  <span class="middot-divider"></span>
+  <a href="https://lucasvandijk.nl/2012/06/multithreading-with-c-11-protecting-data/#disqus_thread"></a>
+  
+
+</div>
+
+
+
+<div class="share-box" aria-hidden="true">
+  <ul class="share">
+    <li>
+      <a class="twitter"
+         href="https://twitter.com/intent/tweet?text=Multithreading%20with%20C%2b%2b11%3a%20protecting%20data&amp;url=https%3a%2f%2flucasvandijk.nl%2f2012%2f06%2fmultithreading-with-c-11-protecting-data%2f"
+         target="_blank" rel="noopener">
+        <i class="fa fa-twitter"></i>
+      </a>
+    </li>
+    <li>
+      <a class="facebook"
+         href="https://www.facebook.com/sharer.php?u=https%3a%2f%2flucasvandijk.nl%2f2012%2f06%2fmultithreading-with-c-11-protecting-data%2f"
+         target="_blank" rel="noopener">
+        <i class="fa fa-facebook"></i>
+      </a>
+    </li>
+    <li>
+      <a class="linkedin"
+         href="https://www.linkedin.com/shareArticle?mini=true&amp;url=https%3a%2f%2flucasvandijk.nl%2f2012%2f06%2fmultithreading-with-c-11-protecting-data%2f&amp;title=Multithreading%20with%20C%2b%2b11%3a%20protecting%20data"
+         target="_blank" rel="noopener">
+        <i class="fa fa-linkedin"></i>
+      </a>
+    </li>
+    <li>
+      <a class="weibo"
+         href="http://service.weibo.com/share/share.php?url=https%3a%2f%2flucasvandijk.nl%2f2012%2f06%2fmultithreading-with-c-11-protecting-data%2f&amp;title=Multithreading%20with%20C%2b%2b11%3a%20protecting%20data"
+         target="_blank" rel="noopener">
+        <i class="fa fa-weibo"></i>
+      </a>
+    </li>
+    <li>
+      <a class="email"
+         href="mailto:?subject=Multithreading%20with%20C%2b%2b11%3a%20protecting%20data&amp;body=https%3a%2f%2flucasvandijk.nl%2f2012%2f06%2fmultithreading-with-c-11-protecting-data%2f">
+        <i class="fa fa-envelope"></i>
+      </a>
+    </li>
+  </ul>
+</div>
+
+
+
+
+
+
+
+    <div class="article-style" itemprop="articleBody">
+      <p>Welcome to this second part in a series of articles about multithreading with C++11.
+In the previous part, I briefly explained what a thread is, and how to create one with the new C++ thread library.
+This time, we will be writing a lot more code, so open up your favourite IDE if you want to try the examples while you&rsquo;re reading.</p>
+
+<p>In the previous article we also saw that sometimes, the output wasn&rsquo;t completely right when running multiple threads simultaneously. Today,
+we&rsquo;ll see that there are some other problems with sharing a resource between threads, and of course, provide some solutions to these
+problems.</p>
+
+<p><em>This is an article part of a series about multithreading with C++11, the other
+parts are listed below:</em></p>
+
+<ul>
+<li>Part 1: <a href="/2012/05/introduction-to-threads-with-c-11/" target="_blank">Introduction to threads with C++11</a></li>
+<li>Part 2: Protecting your data with multiple threads</li>
+</ul>
+
+<h2 id="lost-data">Lost data</h2>
+
+<p>Let&rsquo;s start with a simple example. Consider the following program:</p>
+
+<pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;thread&gt;
+#include &lt;vector&gt;
+
+using std::thread;
+using std::vector;
+using std::cout;
+using std::endl;
+
+class Incrementer
+{
+	private:
+		int counter;
+
+	public:
+		Incrementer() : counter{0} { };
+
+		void operator()()
+		{
+			for(int i = 0; i &lt; 100000; i++)
+			{
+				this-&gt;counter++;
+			}
+		}
+
+		int getCounter() const
+		{
+			return this-&gt;counter;
+		}		
+};
+
+int main()
+{
+	// Create the threads which will each do some counting
+	vector&lt;thread&gt; threads;
+
+	Incrementer counter;
+
+	threads.push_back(thread(std::ref(counter)));
+	threads.push_back(thread(std::ref(counter)));
+	threads.push_back(thread(std::ref(counter)));
+
+	for(auto &amp;t : threads)
+	{
+		t.join();
+	}
+
+	cout &lt;&lt; counter.getCounter() &lt;&lt; endl;
+	
+	return 0;
+}
+</code></pre>
+
+<p>The purpose of this program is to count to 300000. Some smartass programmer wanted to optimize the counting,
+and created three threads, each adding 100000 times one to a shared variable <code>counter</code>.</p>
+
+<p>Let&rsquo;s walk a bit through the code. We create a new class called <code>Incrementer</code>, which holds a private variable
+<code>counter</code>. The constructor is really simple, simply initializing <code>counter</code>, by setting it to zero.</p>
+
+<p>What follows is an operator overloading function, and in this case <code>operator()</code>. This means that each object of
+this class, can be called as a simple function. Normally you would call a method on an object like this:
+<code>object.fooMethod()</code>, but now, you can actually <em>call</em> the object, like this: <code>object()</code>. This is convenient, because
+now we can pass the whole object to the thread class, and within the operator overloading function, use all advantages
+of a class. And the last method of the class is <code>getCounter</code>, a simple getter for the <code>counter</code> variable.</p>
+
+<p>Then, we have the <code>main()</code> function, here we create the threads in a similar manner as in the previous article. A few
+differences though: we now create an object of the class <code>Incrementer</code>, and we pass it to the threads. Note that we use
+<code>std::ref</code> here, to pass a reference of the object, instead of passing a copy to the thread.</p>
+
+<p>So, let&rsquo;s see what this program produces, and if this smartass programmer is really smart. Compile the program using
+GCC 4.7 or higher, or Clang 3.1 or higher. In case of GCC, use the following command:</p>
+
+<p><code>g++ -std=c++11 -lpthread -o threading_example main.cpp</code></p>
+
+<p>And voilà, the output:</p>
+
+<pre><code>[lucas@lucas-desktop src]$ ./threading_example 
+218141
+[lucas@lucas-desktop src]$ ./threading_example 
+208079
+[lucas@lucas-desktop src]$ ./threading_example 
+100000
+[lucas@lucas-desktop src]$ ./threading_example 
+202426
+[lucas@lucas-desktop src]$ ./threading_example 
+172209
+</code></pre>
+
+<p>But wait a second! That smartass programmer wasn&rsquo;t so smart after all! The program doesn&rsquo;t count to 300000, one run
+only reached the 100000! Why is this happening? Well, as simple as &lsquo;increment by one&rsquo; sounds, it actually requires
+multiple instructions for the processor to increment the right variable:</p>
+
+<pre><code class="language-gas">movl	counter(%rip), %eax
+addl	$1, %eax
+movl	%eax, counter(%rip)
+</code></pre>
+
+<p>What happens is this:</p>
+
+<ol>
+<li>We have the current counter value stored in memory, and we load that value into the EAX register</li>
+<li>We add one to the value in the EAX register</li>
+<li>We store the value in EAX back in the original memory location</li>
+</ol>
+
+<p>I hear you think: &ldquo;Ok, nice information, but how does this solve my counting problem smartass?&rdquo;. Well, remember from
+the previous article, that threads shared the processor, if there&rsquo;s only one core. So at some point, one thread is
+really happy because his instructions are executed for a while, but then comes the big boss operating system saying
+&ldquo;Ok, time&rsquo;s up, back in the line!&rdquo;, and then another thread will be executed for a while. And when it&rsquo;s the turn of the
+original thread again, he starts executing where he was left. So, can you guess what happens, if the operating system
+gives another thread the processor, while the original thread was in the middle of the process of incrementing the value
+of a variable by one? Well, for example this:</p>
+
+<table>
+<tr>
+<th width="25%">Thread 1</th>
+<th width="25%">Thread 2</th>
+<th width="5%">Counter</th>
+<th width="55%">Explanation</th>
+</tr>
+<tr>
+<td>%eax <- counter</td>
+<td>nothing</td>
+<td>1</td>
+<td>The current value of the counter is now stored in EAX</td>
+</tr>
+<tr>
+<td>%eax + 1</td>
+<td>nothing</td>
+<td>1</td>
+<td>The value in EAX is now 2, but the counter hasn't been updated yet</td>
+</tr>
+<tr>
+<td>nothing</td>
+<td>%eax <- counter</td>
+<td>1</td>
+<td>Hey, a switch to the other thread, and because the counter hasn't been updated, it loads the old value</td>
+</tr>
+<tr>
+<td>%eax -> counter</td>
+<td>nothing</td>
+<td>2</td>
+<td>And we're back at thread 1. When a thread switches, the state of the registers (for example EAX), are saved, and when we switch back, they're restored in their original state. Because EAX was two the last time thread one got interrupted, that value will be written in the counter variable.</td>
+</tr>
+<tr>
+<td>nothing</td>
+<td>%eax + 1</td>
+<td>2</td>
+<td>And we're back at thread 2. The last time thread got interrupted, EAX had the value 1. </td>
+</tr>
+<tr>
+<td>nothing</td>
+<td>%eax -> counter</td>
+<td>2</td>
+<td>And because EAX was one (and is now two because of the previous instruction), the counter remains 2.</td>
+</tr>
+</table>
+
+<h2 id="hey-it-s-occupied">Hey it&rsquo;s occupied!</h2>
+
+<p>The solution is to make sure only one thread can access the shared variable at the same time. This can be done using the
+<a href="http://en.cppreference.com/w/cpp/thread/mutex" title="std::mutex reference" target="_blank"><code>std::mutex</code></a> class. Visualize it as a sort of toilet: when you go inside, you lock it, do your stuff, and then you unlock it.
+Anyone who wants to use the bathroom has to wait before you&rsquo;re ready.</p>
+
+<p>A convenient feature of a mutex is that operating system makes sure the operations locking and unlocking are indivisible. This means that the thread will not be
+interupted when it&rsquo;s trying to lock or unlock a mutex. When a thread locks or unlocks a mutex, this operation will be finished
+before the operating system switches threads.</p>
+
+<p>And the best thing is, when you try to lock a mutex, but some other thread already locked it, you&rsquo;ll have to wait. But the operating
+system keeps track which threads wait on which mutex. The blocked thread will go in a &ldquo;blocked on <em>m</em>&rdquo; state, meaning that the
+operating system won&rsquo;t give that thread any processortime any more, until the mutex becomes unlocked. This means no wasted
+CPU cycles. If there are multiple threads waiting, it depends on the operating system which thread will be the &lsquo;winner&rsquo;.
+General purpose operating systems like Linux and Windows use a First In First Out system, on realtime operating systems it&rsquo;s
+priority based.</p>
+
+<p>Let&rsquo;s modify above code, to make sure counting works as expected.</p>
+
+<pre><code class="language-cpp">#include &lt;iostream&gt;
+#include &lt;string&gt;
+#include &lt;thread&gt;
+#include &lt;vector&gt;
+#include &lt;mutex&gt;
+
+using std::thread;
+using std::vector;
+using std::cout;
+using std::endl;
+using std::mutex;
+
+class Incrementer
+{
+	private:
+		int counter;
+		mutex m;
+
+	public:
+		Incrementer() : counter{0} { };
+
+		void operator()()
+		{
+			for(int i = 0; i &lt; 100000; i++)
+			{
+				this-&gt;m.lock();
+				this-&gt;counter++;
+				this-&gt;m.unlock();
+			}
+		}
+
+		int getCounter() const
+		{
+			return this-&gt;counter;
+		}	
+};
+
+int main()
+{
+	// Create the threads which will each do some counting
+	vector&lt;thread&gt; threads;
+
+	Incrementer counter;
+
+	threads.push_back(thread(std::ref(counter)));
+	threads.push_back(thread(std::ref(counter)));
+	threads.push_back(thread(std::ref(counter)));
+
+	for(auto &amp;t : threads)
+	{
+		t.join();
+	}
+
+	cout &lt;&lt; counter.getCounter() &lt;&lt; endl;
+	
+	return 0;
+}
+</code></pre>
+
+<p>Note the changes: we included the <code>mutex</code> header file, added a member <code>m</code> to our class, with type <a href="http://en.cppreference.com/w/cpp/thread/mutex" title="std::mutex reference" target="_blank"><code>mutex</code></a>,
+the standard mutex class in C++11. In the method <code>operator()()</code>, we lock the mutex just before incrementing
+the counter, and afterwards we unlock it again.</p>
+
+<p>When we run the program, the output is correct:</p>
+
+<pre><code>[lucas@lucas-desktop src]$ ./threading_example 
+300000
+[lucas@lucas-desktop src]$ ./threading_example 
+300000
+</code></pre>
+
+<p>And as always in computer science, there&rsquo;s no free lunch. Using mutexes will considerable slow down your
+program, but that&rsquo;s better than an incorrect program.</p>
+
+<h2 id="heimdall-guard-us-against-exceptions">Heimdall, guard us against exceptions</h2>
+
+<p>When incrementing a variable by one, the chance of an exception being raised it not really high, but with more
+complex code, it&rsquo;s definitely possible. The above code is not really exception safe. When an exception
+occurs, the mutex will still be locked, while the function is already finished.</p>
+
+<p>To make sure the mutex is unlocked when an exception is thrown, we could use the following code:</p>
+
+<pre><code class="language-cpp">for(int i = 0; i &lt; 100000; i++)
+{
+	this-&gt;m.lock();
+	try
+	{
+		this-&gt;counter++;
+		this-&gt;m.unlock();
+	}
+	catch(...)
+	{
+		this-&gt;m.unlock();
+		throw;
+	}
+}
+</code></pre>
+
+<p>But, that&rsquo;s an awful lot of code, for just locking and unlocking a mutex. Luckily, there&rsquo;s a nice simple
+solution for that, the <a href="http://en.cppreference.com/w/cpp/thread/lock_guard" title="std::lock_guard reference" target="_blank"><code>std::lock_guard</code></a> class. The <code>lock_guard</code> class is really simple: it
+locks the given mutex on creation, and unlocks the mutex when the lock is destroyed (for example, at the
+end of a function scope).</p>
+
+<p>Modifying the above code again results in:</p>
+
+<pre><code class="language-cpp">void operator()()
+{
+	for(int i = 0; i &lt; 100000; i++)
+	{
+		lock_guard&lt;mutex&gt; lock(this-&gt;m);
+
+		// The lock has been created now, and immediatly locks the mutex
+		this-&gt;counter++;
+
+		// This is the end of the for-loop scope, and the lock will be
+		// destroyed, and in the destructor of the lock, it will
+		// unlock the mutex
+	}
+}
+</code></pre>
+
+<p>This code is also exception safe, because when an exception occurs, the destructor of the lock will still
+be called, resulting in an unlocked mutex.</p>
+
+<p>And remember, you can create your temporarily scopes in the following way:</p>
+
+<pre><code class="language-cpp">void long_function()
+{
+	// some long code
+
+	// Just a pair of curly braces
+	{
+		// Temp scope, create lock
+		lock_guard&lt;mutex&gt; lock(this-&gt;m);
+
+		// do some stuff
+
+		// Close the scope, so the guard will unlock the mutex
+	}
+}
+</code></pre>
+
+<h2 id="closing">Closing</h2>
+
+<p>I promised in the previous article to explain why the printing of &ldquo;Hello World&rdquo; and &ldquo;Parallel World&rdquo;
+sometimes went wrong. I hope you understand now that sharing resources between threads without
+synchronization can cause problems.</p>
+
+<p>I&rsquo;m going to be a bit lazy here, and redirect you guys <a href="http://stackoverflow.com/questions/6374264/is-cout-synchronized-thread-safe" target="_blank">to this stackoverflow question</a>. To
+fix the output of cout, just create another mutex, and each thread should lock that mutex before sending
+something to cout, and of course unlock it when it&rsquo;s done.</p>
+
+<p>I hope you enjoyed the article, and next time we&rsquo;ll cover condition variables, another widely used technique
+to synchronize threads.</p>
+    </div>
+
+    
+
+
+<div class="article-tags">
+  
+  <a class="btn btn-primary btn-outline" href="/tags/c&#43;&#43;">C&#43;&#43;</a>
+  
+</div>
+
+
+
+
+    
+    
+    <div class="article-widget">
+      <div class="hr-light"></div>
+      <h3>Related</h3>
+      <ul>
+        
+        <li><a href="/2012/05/introduction-to-threads-with-c-11/">Introduction to threads with C&#43;&#43;11</a></li>
+        
+      </ul>
+    </div>
+    
+
+    
+
+    
+<section id="comments">
+  <form>
+  <div class="checkbox">
+    <label for="enable_comments">
+      <input type="checkbox" name="enable_comments" id="enable_comments"> 
+      Enable comments
+    </label>
+  </div>
+  <p>
+    We use <a href="https://disqus.com" target="_blank">Disqus</a> for comments.
+    By enabling comments you agree that third party services may place tracking
+    cookies on your computer. Disqus allows you to opt out from data sharing 
+    <a href="https://help.disqus.com/customer/portal/articles/1657951-data-sharing-settings" target="_blank">
+      on this page
+    </a>.
+  </p>
+</form>
+
+<div id="disqus_thread"></div>
+<noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+
+</section>
+
+
+
+  </div>
+</article>
+
+<footer class="site-footer">
+  <div class="container">
+    <p class="powered-by">
+
+      &copy; 2018 Lucas van Dijk &middot; 
+
+      Powered by the
+      <a href="https://sourcethemes.com/academic/" target="_blank" rel="noopener">Academic theme</a> for
+      <a href="https://gohugo.io" target="_blank" rel="noopener">Hugo</a>.
+
+      <span class="pull-right" aria-hidden="true">
+        <a href="#" id="back_to_top">
+          <span class="button_icon">
+            <i class="fa fa-chevron-up fa-2x"></i>
+          </span>
+        </a>
+      </span>
+
+    </p>
+  </div>
+</footer>
+
+
+<div id="modal" class="modal fade" role="dialog">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close btn-large" data-dismiss="modal">&times;</button>
+        <h4 class="modal-title">Cite</h4>
+      </div>
+      <div>
+        <pre><code class="modal-body tex"></code></pre>
+      </div>
+      <div class="modal-footer">
+        <a class="btn btn-primary btn-outline js-copy-cite" href="#" target="_blank">
+          <i class="fa fa-copy"></i> Copy
+        </a>
+        <a class="btn btn-primary btn-outline js-download-cite" href="#" target="_blank">
+          <i class="fa fa-download"></i> Download
+        </a>
+        <div id="modal-error"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+    
+
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.2.1/jquery.min.js" integrity="sha512-3P8rXCuGJdNZOnUx/03c1jOTnMn3rP63nBip5gOP2qmUh5YAdVAvFZ1E+QLZZbC1rtMrQb+mah3AfYW11RUrWA==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.imagesloaded/4.1.3/imagesloaded.pkgd.min.js" integrity="sha512-umsR78NN0D23AzgoZ11K7raBD+R6hqKojyBZs1w8WvYlsI+QuKRGBx3LFCwhatzBunCjDuJpDHwxD13sLMbpRA==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha512-iztkobsvnjKfAtTNdHkGVjAYTrrtlC7mGp/54c40wowO7LhURYl3gVzzcEqGl/qKXQltJ2HwMrdLcNUdo+N/RQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.isotope/3.0.4/isotope.pkgd.min.js" integrity="sha512-VDBOIlDbuC4VWxGJNmuFRQ0Li0SKkDpmGyuhAG5LTDLd/dJ/S0WMVxriR2Y+CyPL5gzjpN4f/6iqWVBJlht0tQ==" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/fancybox/3.2.5/jquery.fancybox.min.js" integrity="sha256-X5PoE3KU5l+JcX+w09p/wHl9AzK333C4hJ2I9S5mD4M=" crossorigin="anonymous"></script>
+    
+
+    <script src="/js/hugo-academic.js"></script>
+    
+
+    
+
+    
+    <script type="text/javascript">
+    window.disqus_short_name = 'return1';
+    </script>
+    <script type="text/javascript" src="/js/comments.js"></script>
+    
+
+    
+
+    
+    
+      
+      
+      <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js" integrity="sha256-/BfiIkHlHoVihZdc6TFuj7MmJ0TWcWsMXkeDFwhi0zw=" crossorigin="anonymous"></script>
+      
+
+      
+      <script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/languages/python.min.js"></script>
+      
+
+      
+
+      <script>hljs.initHighlightingOnLoad();</script>
+    
+
+    
+    
+    <script type="text/x-mathjax-config">
+        MathJax.Hub.Config({ tex2jax: { inlineMath: [['$','$'], ['\\(','\\)']] } });
+    </script>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.1/MathJax.js?config=TeX-AMS_CHTML" integrity="sha512-tOav5w1OjvsSJzePRtt2uQPFwBoHt1VZcUq8l8nm5284LEKE9FSJBQryzMBzHxY5P0zRdNqEcpLIRVYFNgu1jw==" crossorigin="anonymous"></script>
+    
+    
+
+  </body>
+</html>
+

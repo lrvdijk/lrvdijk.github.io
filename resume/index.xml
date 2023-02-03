@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Resume on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</title>
+    <link>https://lucasvandijk.nl/resume/</link>
+    <description>Recent content in Resume on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018 Lucas van Dijk</copyright>
+    <lastBuildDate>Tue, 27 Mar 2018 16:01:33 -0400</lastBuildDate>
+    
+	<atom:link href="https://lucasvandijk.nl/resume/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title></title>
+      <link>https://lucasvandijk.nl/resume/about/</link>
+      <pubDate>Wed, 06 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/resume/about/</guid>
+      <description>About I am a PhD-candidate in bioinformatics in the Delft Bioinformatics Lab at TU Delft and my project is in close collaboration with the Bacterial Genomics Group at the Broad Institute of MIT and Harvard, where I do most of my work. My background is in electrical engineering and computer science, and I have gained a huge interest in biology the past few years. Now I am using my knowledge on algorithms, data structures and machine learning to help answer biological questions.</description>
+    </item>
+    
+    <item>
+      <title>Experience</title>
+      <link>https://lucasvandijk.nl/resume/professional/</link>
+      <pubDate>Tue, 27 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/resume/professional/</guid>
+      <description>Professional appointments  Computational Associate I, Broad Institute of MIT and Harvard, Nov. 2017 - present
+Develop algorithms and tools for strain-level metagenomics. PhD-candidate, TU Delft, Nov. 2017 - present
+See above. Bioinformatics intern, DSM, Jun. 2016 - Oct. 2016
+Responsible for doing an initial analysis and literature review on a protein production problem at large scale with the bacterium Bacillus subtilis by modelling its proteome allocation and analysing protein measurements under different growth conditions.</description>
+    </item>
+    
+    <item>
+      <title>Teaching</title>
+      <link>https://lucasvandijk.nl/resume/teaching/</link>
+      <pubDate>Tue, 27 Mar 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/resume/teaching/</guid>
+      <description> Teaching assistant I have been teaching assistant for the following undergraduate courses at TU Delft:
+ TI2736-C Data Mining (2016-2017) NB2161 Bioinformatics (2016-2017) LB2291 Bioinformatics (2016-2017)  </description>
+    </item>
+    
+    <item>
+      <title>Software</title>
+      <link>https://lucasvandijk.nl/resume/projects/</link>
+      <pubDate>Wed, 20 Apr 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/resume/projects/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

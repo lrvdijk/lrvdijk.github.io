@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Tags on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</title>
+    <link>https://lucasvandijk.nl/tags/</link>
+    <description>Recent content in Tags on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018 Lucas van Dijk</copyright>
+    <lastBuildDate>Sun, 01 Jan 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://lucasvandijk.nl/tags/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Content tagged as &#39;Academic&#39;</title>
+      <link>https://lucasvandijk.nl/tags/academic/</link>
+      <pubDate>Sun, 01 Jan 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/tags/academic/</guid>
+      <description>Here is a list of all the content that has been tagged as academic.</description>
+    </item>
+    
+    <item>
+      <title>Bioinformatics</title>
+      <link>https://lucasvandijk.nl/tags/bioinformatics/</link>
+      <pubDate>Tue, 29 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/tags/bioinformatics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>C&#43;&#43;</title>
+      <link>https://lucasvandijk.nl/tags/c&#43;&#43;/</link>
+      <pubDate>Tue, 29 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/tags/c&#43;&#43;/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Python</title>
+      <link>https://lucasvandijk.nl/tags/python/</link>
+      <pubDate>Tue, 29 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/tags/python/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>avr</title>
+      <link>https://lucasvandijk.nl/tags/avr/</link>
+      <pubDate>Tue, 16 Oct 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/tags/avr/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>bioinformatics</title>
+      <link>https://lucasvandijk.nl/tags/bioinformatics/</link>
+      <pubDate>Tue, 29 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/tags/bioinformatics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>c</title>
+      <link>https://lucasvandijk.nl/tags/c/</link>
+      <pubDate>Tue, 16 Oct 2012 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/tags/c/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>electronics</title>
+      <link>https://lucasvandijk.nl/tags/electronics/</link>
+      <pubDate>Mon, 01 Apr 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/tags/electronics/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>gis</title>
+      <link>https://lucasvandijk.nl/tags/gis/</link>
+      <pubDate>Thu, 01 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/tags/gis/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>opengl</title>
+      <link>https://lucasvandijk.nl/tags/opengl/</link>
+      <pubDate>Sat, 13 Jun 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/tags/opengl/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>python</title>
+      <link>https://lucasvandijk.nl/tags/python/</link>
+      <pubDate>Thu, 01 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/tags/python/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

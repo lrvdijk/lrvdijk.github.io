@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>python on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</title>
+    <link>https://lucasvandijk.nl/tags/python/</link>
+    <description>Recent content in python on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018 Lucas van Dijk</copyright>
+    <lastBuildDate>Thu, 01 Feb 2018 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://lucasvandijk.nl/tags/python/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Visualising the height of the Netherlands</title>
+      <link>https://lucasvandijk.nl/2018/02/visualising-the-height-of-the-netherlands/</link>
+      <pubDate>Thu, 01 Feb 2018 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/2018/02/visualising-the-height-of-the-netherlands/</guid>
+      <description>&lt;p&gt;On this date 65 years ago, February 1st 1953, the Netherlands experienced its
+greatest flood till date, the &lt;a href=&#34;https://en.wikipedia.org/wiki/North_Sea_flood_of_1953&#34; target=&#34;_blank&#34;&gt;North Sea Flood of 1953&lt;/a&gt;. This
+is still one of the biggest disasters the Netherlands has ever experienced,
+with thousands of casualties and lots of people who lost their homes.&lt;/p&gt;
+
+&lt;p&gt;The Netherlands earns its name from the fact that large parts of the country
+lie below sea level. To make sure our country doesn&amp;rsquo;t flood, we have built lots
+of barriers, dams and dykes to keep the water out, and we want to prevent
+anything like the flood of 1953 from happening ever again.&lt;/p&gt;
+
+&lt;p&gt;In the beginning of this year, several of these barriers and dams were put to
+the test when a heavy storm reached the Netherlands which resulted in very high
+water levels. Our five biggest dams and barriers needed to be closed at the
+same time, a first since their construction. We can ask ourselves the question
+whether this will happen more often now that sea levels are rising due to
+global warming &lt;sup class=&#34;footnote-ref&#34; id=&#34;fnref:sealevel&#34;&gt;&lt;a href=&#34;#fn:sealevel&#34;&gt;1&lt;/a&gt;&lt;/sup&gt;. A higher base line sea level increases the chance
+for even higher water levels when it storms. To get an idea what areas would be
+affected the most by a possible flood, we have created a visualisation project
+that shows the height of the Netherlands in comparison to the sea level.&lt;/p&gt;</description>
+    </item>
+    
+    <item>
+      <title>Drawing arbitrary shapes with OpenGL points</title>
+      <link>https://lucasvandijk.nl/2015/06/drawing-arbitrary-shapes-with-opengl-points/</link>
+      <pubDate>Sat, 13 Jun 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/2015/06/drawing-arbitrary-shapes-with-opengl-points/</guid>
+      <description>&lt;p&gt;Part of my Google Summer of Code project involves porting several arrow
+heads from &lt;a href=&#34;https://github.com/glumpy/glumpy&#34; target=&#34;_blank&#34;&gt;Glumpy&lt;/a&gt; to
+&lt;a href=&#34;https://vispy.org&#34; target=&#34;_blank&#34;&gt;Vispy&lt;/a&gt;. I also want to make a slight change to them:
+the arrow heads in Glumpy include an arrow body, I want to remove that
+to make sure you can put an arrow head on every type of line you want.&lt;/p&gt;
+
+&lt;p&gt;Making a change like that requires that you understand how those shapes
+are drawn. And for someone without a background in computer graphics this took some thorough
+investigation of the code and the techniques used. This article is aimed
+at people like me: good enough programming skills and linear algebra
+knowledge, but almost no former experience with OpenGL or computer
+graphics in general.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

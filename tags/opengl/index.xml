@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>opengl on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</title>
+    <link>https://lucasvandijk.nl/tags/opengl/</link>
+    <description>Recent content in opengl on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018 Lucas van Dijk</copyright>
+    <lastBuildDate>Sat, 13 Jun 2015 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://lucasvandijk.nl/tags/opengl/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>Drawing arbitrary shapes with OpenGL points</title>
+      <link>https://lucasvandijk.nl/2015/06/drawing-arbitrary-shapes-with-opengl-points/</link>
+      <pubDate>Sat, 13 Jun 2015 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/2015/06/drawing-arbitrary-shapes-with-opengl-points/</guid>
+      <description>&lt;p&gt;Part of my Google Summer of Code project involves porting several arrow
+heads from &lt;a href=&#34;https://github.com/glumpy/glumpy&#34; target=&#34;_blank&#34;&gt;Glumpy&lt;/a&gt; to
+&lt;a href=&#34;https://vispy.org&#34; target=&#34;_blank&#34;&gt;Vispy&lt;/a&gt;. I also want to make a slight change to them:
+the arrow heads in Glumpy include an arrow body, I want to remove that
+to make sure you can put an arrow head on every type of line you want.&lt;/p&gt;
+
+&lt;p&gt;Making a change like that requires that you understand how those shapes
+are drawn. And for someone without a background in computer graphics this took some thorough
+investigation of the code and the techniques used. This article is aimed
+at people like me: good enough programming skills and linear algebra
+knowledge, but almost no former experience with OpenGL or computer
+graphics in general.&lt;/p&gt;</description>
+    </item>
+    
+  </channel>
+</rss>

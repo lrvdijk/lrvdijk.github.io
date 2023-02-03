@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Homes on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</title>
+    <link>https://lucasvandijk.nl/home/</link>
+    <description>Recent content in Homes on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018 Lucas van Dijk</copyright>
+    <lastBuildDate>Wed, 06 Sep 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://lucasvandijk.nl/home/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title></title>
+      <link>https://lucasvandijk.nl/home/about/</link>
+      <pubDate>Wed, 06 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/home/about/</guid>
+      <description>About I am a PhD-candidate in bioinformatics in the Delft Bioinformatics Lab at TU Delft and my project is in close collaboration with the Bacterial Genomics Group at the Broad Institute of MIT and Harvard, where I do most of my work. My background is in electrical engineering and computer science, and I have gained a huge interest in biology the past few years. Now I am using my knowledge on algorithms, data structures and machine learning to help answer biological questions.</description>
+    </item>
+    
+    <item>
+      <title>Blog</title>
+      <link>https://lucasvandijk.nl/home/blog/</link>
+      <pubDate>Thu, 07 Sep 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/home/blog/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>Software</title>
+      <link>https://lucasvandijk.nl/home/projects/</link>
+      <pubDate>Wed, 20 Apr 2016 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/home/projects/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

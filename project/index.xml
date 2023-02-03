@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Projects on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</title>
+    <link>https://lucasvandijk.nl/project/</link>
+    <description>Recent content in Projects on &lt;span class=&#34;top&#34;&gt;Lucas&lt;/span&gt; &lt;span class=&#34;bottom&#34;&gt;van Dijk&lt;/span&gt;</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <copyright>&amp;copy; 2018 Lucas van Dijk</copyright>
+    <lastBuildDate>Tue, 29 Aug 2017 00:00:00 +0000</lastBuildDate>
+    
+	<atom:link href="https://lucasvandijk.nl/project/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>PHASM: Haplotype-aware de novo genome assembly</title>
+      <link>https://lucasvandijk.nl/project/phasm/</link>
+      <pubDate>Tue, 29 Aug 2017 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/project/phasm/</guid>
+      <description>PHASM is a long read de novo genome assembler that phases variants among chromosome homologues during the assembly process, and aims to output separate contigs for each haplotype. The main idea in PHASM is to build bubble chains: consecutive &amp;ldquo;superbubbles&amp;rdquo; chained together. While most traditional genome assemblers pop these superbubbles by only keeping the best supported path, PHASM finds k paths through this chain of superbubbles that best represent each haplotype.</description>
+    </item>
+    
+    <item>
+      <title>Raspberry Pi TLC5940 library</title>
+      <link>https://lucasvandijk.nl/project/raspberry-pi-tlc5940/</link>
+      <pubDate>Mon, 01 Apr 2013 00:00:00 +0000</pubDate>
+      
+      <guid>https://lucasvandijk.nl/project/raspberry-pi-tlc5940/</guid>
+      <description>This is a library which allows programs running in the userspace to control the TLC5940 LED driver with a Raspberry Pi. The user can specify the PWM value for each output channel of the TLC5940, and it also supports multiple cascaded TLC5940&amp;rsquo;s.
+The TLC5940 The TLC5940 is a versatile LED driver from Texas Instruments. It has 16 output channels, and they can be cascaded to easily support more output channels.</description>
+    </item>
+    
+  </channel>
+</rss>
